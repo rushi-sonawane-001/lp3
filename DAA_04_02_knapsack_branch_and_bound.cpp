@@ -1,66 +1,33 @@
-
 #include <iostream>
-#include <algorithm>
-#include <iomanip>
+#include <vector>
 using namespace std;
 
-int main() {
-    int n;
-    double capacity;
 
-    cout << "Number of items: ";
-    cin >> n;
+//Dynamic Programming (Bottom-Up approach)
+// TC => O(n*capacity)     
+//SC => O(n*capacity) dp table
 
-    double value[100], weight[100], ratio[100];
+int knapsack(vector<int> profit, vector<int> wt, int capacity) {
+    int n = profit.size();
 
-    // Input item values and weights
-    for (int i = 0; i < n; i++) {
-        cout << "Value and weight of item " << i + 1 << ": ";
-        cin >> value[i] >> weight[i];
-
-        if (weight[i] <= 0) {
-            cout << "Weight must be positive.\n";
-            return 1;
-        }
-
-        ratio[i] = value[i] / weight[i];
-    }
-
-    cout << "Knapsack capacity: ";
-    cin >> capacity;
-
-    // Sort items by value/weight ratio
-    for (int i = 0; i < n; i++) {
-        for (int j = i + 1; j < n; j++) {
-
-            if (ratio[i] < ratio[j]) {
-                swap(ratio[i], ratio[j]);
-                swap(value[i], value[j]);
-                swap(weight[i], weight[j]);
+    vector<vector<int>> t(n+1,vector<int>(capacity+1,0));
+    
+    for(int i = 1; i < n+1; i++) {
+        for(int j = 1; j < capacity+1; j++) {
+            if(wt[i-1] <= j) {
+                t[i][j] = max(profit[i-1] + t[i-1][j - wt[i-1]], t[i-1][j]);
             }
+            else t[i][j] = t[i-1][j];
         }
     }
 
-    double total = 0;
+    return t[n][capacity];
+}
 
-    // Select items using Greedy method
-    for (int i = 0; i < n; i++) {
+int main() {
+    vector<int> profit = {1,4,5,7};
+    vector<int> wt = {1,3,4,5};
+    int capacity = 7;
 
-        if (capacity <= 0)
-            break;
-
-        double take = min(capacity, weight[i]);
-
-        total = total + take * ratio[i];
-
-        capacity = capacity - take;
-
-        cout << "Taken weight: " << take
-             << ", value: " << take * ratio[i] << endl;
-    }
-
-    cout << fixed << setprecision(2);
-    cout << "Maximum value = " << total << endl;
-
-    return 0;
+    cout<<"\nMaximum Profit = "<<knapsack(profit, wt, capacity)<<endl;
 }
